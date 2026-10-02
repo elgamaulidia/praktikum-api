@@ -79,3 +79,9 @@ Route::delete('/blog/{id}', function($id) {
         'message' => "Blog berhasil dihapus",
     ]);
 });
+
+Route::get('/hello-world', function () {
+    return response()->json([
+        'message' => 'Hello World, Elga'
+    ]);
+});
