@@ -1,81 +1,79 @@
+
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Models\Blog;
+use App\Http\Controllers\Api\AuthController;
 
-// // fungsi untuk mendapatkan user, but need authentikasi
-// Route::get('/user', function (Request $request) {
-//     return $request->user();
-// })->middleware('auth:api');
+Route::post('login', [AuthController::class, 'login']);
+Route::post('register', [AuthController::class, 'register']);
 
-// BREAD
-// B = BROWSE (menampilkan list data)
-// R = READ (menampilkan detail data)
-// E = EDIT (mengubah data)
-// A = ADD (menambahkan data)
-// D = DELETE (menghapus data)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('logout', [AuthController::class, 'logout']);
 
+    Route::get('profile', [AuthController::class, 'profile']);
 
-// blogs : untuk menampikan semua data blogs (GET)
-// B (Browse): MENAMPILKAN LISTS DARIPADA BLOG YANG ADA DI DATABASE
-Route::get('/blogs', function() {
-    $blogs = Blog::get();
+    // BREAD
+    // B = BROWSE
+    // R = READ
+    // E = EDIT
+    // A = ADD
+    // D = DELETE
 
-    return response()->json([
-        'data' => $blogs
-    ]);
-});
+    // B (Browse): Menampilkan semua data blog
+    Route::get('/blogs', function() {
+        $blogs = Blog::get();
 
-// blog/{id} : untuk menampilkan data blog berdasarkan id (GET)
-// R (Read): MENAMPILKAN DETAIL DATA BLOG BERDASARKAN ID
-Route::get('/blog/{id}', function($id) {
-    $blog = Blog::findOrFail($id);
+        return response()->json([
+            'data' => $blogs
+        ]);
+    });
 
-    return response()->json([
-        'message' => "Detail blog berhasil ditampilkan",
-        'data' => $blog
-    ]);
-});
+    // R (Read): Menampilkan detail blog
+    Route::get('/blog/{id}', function($id) {
+        $blog = Blog::findOrFail($id);
 
-// blog/{id} : untuk mengupdate data blog berdasarkan id (PUT)
-// E (Edit): MENGUBAH DATA BLOG BERDASARKAN ID
-Route::put('/blog/{id}', function($id) {
-    $blog = Blog::findOrFail($id);
+        return response()->json([
+            'message' => "Detail blog berhasil ditampilkan",
+            'data' => $blog
+        ]);
+    });
 
-    $blog->update([
-        'title' => request()->get('title'),
-        'content' => request()->get('content'),
-    ]);
+    // E (Edit): Mengubah data blog
+    Route::put('/blog/{id}', function($id) {
+        $blog = Blog::findOrFail($id);
 
-    return response()->json([
-        'message' => "Blog berhasil diubah",
-    ]);
-});
+        $blog->update([
+            'title' => request()->get('title'),
+            'content' => request()->get('content'),
+        ]);
 
+        return response()->json([
+            'message' => "Blog berhasil diubah",
+        ]);
+    });
 
-// blogs : untuk menambahkan data blog baru (POST)
-// A (Add): MENAMBAHKAN DATA BLOG BARU KE DALAM DATABASE
-Route::post('/blogs', function() {
-    $blog = Blog::create([
-        'title' => request()->get('title'),
-        'content' => request()->get('content'),
-    ]);
+    // A (Add): Menambahkan blog baru
+    Route::post('/blogs', function() {
+        $blog = Blog::create([
+            'title' => request()->get('title'),
+            'content' => request()->get('content'),
+        ]);
 
-    return response()->json([
-        'message' => "Blog berhasil ditambahkan",
-        'data' => $blog
-    ]);
-});
+        return response()->json([
+            'message' => "Blog berhasil ditambahkan",
+            'data' => $blog
+        ]);
+    });
 
-// blog/{id} : untuk menghapus data blog berdasarkan id (DELETE)
-// D (Delete): MENGHAPUS DATA BLOG BERDASARKAN ID
-Route::delete('/blog/{id}', function($id) {
-    $blog = Blog::findOrFail($id);
+    // D (Delete): Menghapus blog
+    Route::delete('/blog/{id}', function($id) {
+        $blog = Blog::findOrFail($id);
 
-    $blog->delete();
+        $blog->delete();
 
-    return response()->json([
-        'message' => "Blog berhasil dihapus",
-    ]);
+        return response()->json([
+            'message' => "Blog berhasil dihapus",
+        ]);
+    });
 });
