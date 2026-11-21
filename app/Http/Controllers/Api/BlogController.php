@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Blog;
 use Illuminate\Http\Request;
+use App\Trait\EnsureOwnerTrait;
 
 class BlogController extends Controller
 {
+    use EnsureOwnerTrait;
 
     // BREAD
     // B = BROWSE (menampilkan list data)
@@ -43,6 +45,7 @@ class BlogController extends Controller
     public function read($id, Request $request)
     {
         $blog = Blog::findOrFail($id);
+        $this->ensureOwner($request, $blog);
 
         return response()->json([
             'message' => "Detail blog berhasil ditampilkan",
@@ -59,6 +62,7 @@ class BlogController extends Controller
         ]);
 
         $blog = Blog::findOrFail($id);
+        $this->ensureOwner($request, $blog);
         $blog->update($data);
 
         return response()->json([
@@ -80,13 +84,14 @@ class BlogController extends Controller
         return response()->json([
             'message' => "Blog berhasil ditambahkan",
             'data' => $blog
-        ], 201);
+        ]);
     }
 
     // D (Delete): Menghapus data blog berdasarkan ID
     public function delete($id, Request $request)
     {
         $blog = Blog::findOrFail($id);
+        $this->ensureOwner($request, $blog);
 
         $blog->delete();
 

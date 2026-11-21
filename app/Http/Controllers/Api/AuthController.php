@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Http\Controllers\Api;
+
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
@@ -32,6 +34,7 @@ class AuthController extends Controller
         $data = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required', 'string'],
+            'mode' => ['sometimes', 'required', 'string', 'in:read,edit,delete,manage'],
         ]);
 
         $user = User::where('email', $data['email'])->first();
@@ -42,11 +45,21 @@ class AuthController extends Controller
             ]);
         }
 
-        $token = $user->createToken('demo-api')->plainTextToken;
+        $mode = $data['mode'] ?? 'read';
+
+        $abilities = match ($mode) {
+            'read' => ['blogs:read'],
+            'edit' => ['blogs:read', 'blogs:update'],
+            'delete' => ['blogs:read', 'blogs:delete'],
+            'manage' => ['blogs:read', 'blogs:update', 'blogs:create', 'blogs:delete'],
+        };
+
+        $token = $user->createToken("blog-{$mode}", $abilities)->plainTextToken;
 
         return response()->json([
             'token_type' => 'Bearer',
             'token' => $token,
+            'abilities' => $abilities,
         ]);
     }
 
